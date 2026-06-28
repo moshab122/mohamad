@@ -1,0 +1,16 @@
+{
+  "scope": {
+    "niche": "productivity",
+    "video_length_seconds": 30,
+    "posting_frequency_per_day": 2,
+    "voice_style": "energetic",
+    "require_human_approval": true
+  },
+  "brand_tone": "friendly expert",
+  "banned_terms": [
+    "hate",
+    "violence"
+  ],
+  "max_regeneration_attempts": 2,
+  "default_music_style": "lofi"
+}
