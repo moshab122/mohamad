@@ -7,7 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from tiktok_automation.pipeline import AutomationPipeline, MediaAssemblyService
-from tiktok_automation.main import load_config
+from tiktok_automation.main import load_config, run
 from tiktok_automation.types import AutomationScope, PipelineConfig
 
 
@@ -109,6 +109,46 @@ class PipelineTests(unittest.TestCase):
             handle.flush()
             with self.assertRaises(ValueError):
                 load_config(Path(handle.name))
+
+    def test_run_for_day_uses_posting_frequency(self):
+        config = PipelineConfig(
+            scope=AutomationScope(
+                niche="fitness",
+                video_length_seconds=20,
+                posting_frequency_per_day=3,
+                voice_style="calm",
+                require_human_approval=False,
+            ),
+            brand_tone="motivational",
+            banned_terms=[],
+        )
+        pipeline = AutomationPipeline(config)
+        jobs = pipeline.run_for_day()
+        self.assertEqual(len(jobs), 3)
+        self.assertTrue(all(job.script.text for job in jobs))
+        self.assertTrue(all(job.status == "published" for job in jobs))
+
+    def test_run_returns_jobs_and_auto_publishes_with_sample_like_config(self):
+        sample_like = {
+            "scope": {
+                "niche": "productivity",
+                "video_length_seconds": 30,
+                "posting_frequency_per_day": 2,
+                "voice_style": "energetic",
+                "require_human_approval": False,
+            },
+            "brand_tone": "friendly expert",
+            "banned_terms": ["hate", "violence"],
+            "max_regeneration_attempts": 2,
+            "default_music_style": "lofi",
+        }
+        with tempfile.NamedTemporaryFile("w+", suffix=".json", delete=True) as handle:
+            json.dump(sample_like, handle)
+            handle.flush()
+            result = run(handle.name)
+        self.assertIn("jobs", result)
+        self.assertEqual(len(result["jobs"]), 2)
+        self.assertTrue(all(job["status"] == "published" for job in result["jobs"]))
 
 
 if __name__ == "__main__":

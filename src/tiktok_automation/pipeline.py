@@ -185,6 +185,12 @@ class AutomationPipeline:
             last_job.status = "failed"
         return last_job
 
+    def run_for_day(self) -> List[VideoJob]:
+        jobs: List[VideoJob] = []
+        for _ in range(self.config.scope.posting_frequency_per_day):
+            jobs.append(self.run_once())
+        return jobs
+
     def export_monitoring_events(self) -> List[Dict[str, str]]:
         return self.monitoring.events
 

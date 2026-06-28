@@ -32,9 +32,9 @@ def load_config(config_path: Path) -> PipelineConfig:
 def run(config_file: str) -> dict:
     config = load_config(Path(config_file))
     pipeline = AutomationPipeline(config)
-    job = pipeline.run_once()
+    jobs = pipeline.run_for_day()
     return {
-        "job": pipeline.export_job(job),
+        "jobs": [pipeline.export_job(job) for job in jobs],
         "monitoring": pipeline.export_monitoring_events(),
     }
 
