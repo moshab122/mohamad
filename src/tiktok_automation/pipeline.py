@@ -27,8 +27,20 @@ class TopicGenerator:
 
 
 class ScriptGenerationService:
+    @staticmethod
+    def _redact_banned_terms(text: str, banned_terms: List[str]) -> str:
+        sanitized = text
+        for term in banned_terms:
+            clean_term = term.strip()
+            if not clean_term:
+                continue
+            pattern = re.compile(rf"\b{re.escape(clean_term)}\b", re.IGNORECASE)
+            sanitized = pattern.sub("safe topic", sanitized)
+        return sanitized
+
     def generate(self, topic: Topic, tone: str, banned_terms: List[str]) -> Script:
         text = f"{topic.hook}. Stay tuned for more."
+        text = self._redact_banned_terms(text, banned_terms)
         lowered = text.lower()
         is_safe = not any(term.lower() in lowered for term in banned_terms)
         has_copyright_risk = "official song" in lowered or "movie clip" in lowered

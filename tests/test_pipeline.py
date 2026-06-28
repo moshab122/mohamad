@@ -150,6 +150,24 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(len(result["jobs"]), 2)
         self.assertTrue(all(job["status"] == "published" for job in result["jobs"]))
 
+    def test_script_redacts_banned_terms_for_anti_ban_safety(self):
+        config = PipelineConfig(
+            scope=AutomationScope(
+                niche="violence",
+                video_length_seconds=20,
+                posting_frequency_per_day=1,
+                voice_style="calm",
+                require_human_approval=False,
+            ),
+            brand_tone="neutral",
+            banned_terms=["violence"],
+        )
+        pipeline = AutomationPipeline(config)
+        job = pipeline.run_once()
+        self.assertEqual(job.status, "published")
+        self.assertTrue(job.script.safe)
+        self.assertNotIn("violence", job.script.text.lower())
+
 
 if __name__ == "__main__":
     unittest.main()
