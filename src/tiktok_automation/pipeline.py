@@ -1,4 +1,5 @@
 import time
+import re
 from dataclasses import asdict
 from typing import Dict, List
 
@@ -35,12 +36,18 @@ class ScriptGenerationService:
 
 
 class AssetSourcingService:
+    @staticmethod
+    def _safe_slug(value: str) -> str:
+        slug = re.sub(r"[^a-z0-9]+", "_", value.lower()).strip("_")
+        return slug or "untitled"
+
     def source(self, topic: Topic, music_style: str) -> AssetBundle:
+        topic_slug = self._safe_slug(topic.title)
         return AssetBundle(
-            clips=[f"stock/{topic.title.replace(' ', '_').lower()}_clip.mp4"],
-            images=[f"ai/{topic.title.replace(' ', '_').lower()}_image.png"],
+            clips=[f"stock/{topic_slug}_clip.mp4"],
+            images=[f"ai/{topic_slug}_image.png"],
             music_track=f"music/{music_style}_bed.mp3",
-            voiceover_track=f"voice/{topic.title.replace(' ', '_').lower()}_voice.mp3",
+            voiceover_track=f"voice/{topic_slug}_voice.mp3",
             subtitles=[topic.hook, "Follow for more"],
         )
 
@@ -143,7 +150,11 @@ class AutomationPipeline:
                 rendered_video=rendered,
                 quality=quality,
                 status="created",
-                metadata={"attempt": str(attempts)},
+                metadata={
+                    "attempt": str(attempts),
+                    "voice_style": self.config.scope.voice_style,
+                    "posting_frequency_per_day": str(self.config.scope.posting_frequency_per_day),
+                },
             )
 
             if not quality.passed:

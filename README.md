@@ -21,6 +21,10 @@ This repository implements an end-to-end automation pipeline for generating and 
 3. **Monitoring and retry flow**:
    - Stage-level monitoring events
    - Regeneration attempts when checks fail
+4. **Safety and reliability updates**:
+   - Config validation for required/positive scope values
+   - Sanitized asset filenames for safer output paths
+   - Scope metadata attached to each produced job
 
 ## Project structure
 
