@@ -1,2 +1,50 @@
-# mohamad
-rand love mohamad 
+# TikTok Automation Pipeline
+
+This repository implements an end-to-end automation pipeline for generating and preparing TikTok videos.
+
+## What is implemented
+
+1. **Automation scope** via config (`config/sample_config.json`):
+   - Content niche
+   - Video length
+   - Posting frequency
+   - Voice style
+   - Human approval vs full automation
+   - Auto posting count via `posting_frequency_per_day`
+2. **Content pipeline stages**:
+   - Topic generation
+   - Script generation with policy/copyright checks
+   - Asset sourcing (clips, images, music, voiceover, subtitles)
+   - Media assembly for vertical 9:16 output
+   - Quality validation (duration, caption timing, audio)
+   - Scheduling and publish state tracking
+   - Analytics feedback signals
+3. **Monitoring and retry flow**:
+   - Stage-level monitoring events
+   - Regeneration attempts when checks fail
+4. **Safety and reliability updates**:
+   - Config validation for required/positive scope values
+   - Sanitized asset filenames for safer output paths
+   - Scope metadata attached to each produced job
+5. **Fully automated mode in sample config**:
+   - Auto writing is always enabled through script generation
+   - Auto posting enabled (`require_human_approval: false`)
+   - Multiple auto posts per run using `posting_frequency_per_day`
+
+## Project structure
+
+- `/home/runner/work/mohamad/mohamad/src/tiktok_automation/pipeline.py` – core pipeline and services
+- `/home/runner/work/mohamad/mohamad/src/tiktok_automation/types.py` – shared dataclasses
+- `/home/runner/work/mohamad/mohamad/src/tiktok_automation/main.py` – CLI entrypoint
+- `/home/runner/work/mohamad/mohamad/config/sample_config.json` – sample configuration
+- `/home/runner/work/mohamad/mohamad/tests/test_pipeline.py` – automated tests
+
+## Run locally
+
+```bash
+cd /home/runner/work/mohamad/mohamad
+python -m unittest discover -s tests
+python -m src.tiktok_automation.main --config config/sample_config.json
+```
+
+The CLI now returns a `jobs` array and, with the sample config, auto-generates and auto-publishes 2 videos per run.
